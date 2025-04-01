@@ -1,7 +1,10 @@
 **HA Kubernetes Cluster Project**
+
+
 This project automates the deployment and management of a high-availability Kubernetes cluster using Ansible, Terraform, and Proxmox. It includes configuration for multi-master, multi-worker setups, security configurations, and tools for monitoring, logging, and backup management.
 
 **Overview**
+
 This repository contains the scripts and configuration to deploy a high-availability Kubernetes cluster using multiple tools. The project is structured into three main parts:
 
 1.Ansible-based Kubernetes Setup: Handles Kubernetes installation and configuration.
@@ -16,6 +19,7 @@ This setup is ideal for real-time, production-level Kubernetes environments, and
 
 
 **Prerequisites**
+
 
 Tools Required
 *Ansible: Used for automating the configuration of your Kubernetes cluster.
