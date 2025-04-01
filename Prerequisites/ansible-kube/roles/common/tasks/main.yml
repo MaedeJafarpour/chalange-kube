@@ -1,0 +1,56 @@
+---
+- name: Update apt package index
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install required system packages
+  apt:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg-agent
+      - software-properties-common
+      - nfs-common
+      - ipvsadm
+      - ipset
+      - socat
+      - conntrack
+      - ebtables
+      - ethtool
+
+- name: Disable swap
+  command: swapoff -a
+  ignore_errors: yes
+
+- name: Comment out swap in /etc/fstab
+  replace:
+    path: /etc/fstab
+    regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+    replace: '# \1'
+
+- name: Load kernel modules
+  modprobe:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - br_netfilter
+    - overlay
+
+- name: Apply sysctl settings
+  template:
+    src: sysctl.conf.j2
+    dest: /etc/sysctl.d/99-k8s.conf
+  notify: apply sysctl
+
+- name: Reboot if required
+  reboot:
+    msg: "Reboot required by Kubernetes setup"
+    connect_timeout: 5
+    reboot_timeout: 600
+    pre_reboot_delay: 0
+    post_reboot_delay: 30

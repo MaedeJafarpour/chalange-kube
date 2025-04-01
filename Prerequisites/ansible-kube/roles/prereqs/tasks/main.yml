@@ -1,0 +1,16 @@
+---
+- name: Update and upgrade all packages
+  apt:
+    update_cache: yes
+    upgrade: dist
+
+- name: Install required packages
+  apt:
+    name:
+      - curl
+      - vim
+      - wget
+      - apt-transport-https
+      - ca-certificates
+      - software-properties-common
+    state: present

@@ -1,0 +1,11 @@
+---
+- name: Install Helm
+  shell: |
+    curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+  when: additional_features.helm
+
+- name: Deploy Kubernetes Dashboard
+  command: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.5.0/aio/deploy/recommended.yaml
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  when: enable_dashboard

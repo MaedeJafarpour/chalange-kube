@@ -1,0 +1,23 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-tenant-labels
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+  - name: validate-tenant-resources
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          - Deployment
+          - Service
+    validate:
+      message: "All resources must include tenant labels"
+      pattern:
+        metadata:
+          labels:
+            tenant: "?*"
+            security-tier: "?*"

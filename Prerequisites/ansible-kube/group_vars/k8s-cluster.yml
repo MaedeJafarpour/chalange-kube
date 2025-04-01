@@ -1,0 +1,27 @@
+# Kubeadm config
+kubeadm_config_api:
+  advertiseAddress: "{{ ansible_default_ipv4.address }}"
+  bindPort: 6443
+  controlPlaneEndpoint: "{{ keepalived_virtual_ip }}:{{ haproxy_port }}"
+
+kubeadm_config_controllerManager:
+  extraArgs:
+    node-cidr-mask-size: "24"
+
+kubeadm_config_scheduler:
+  extraArgs: {}
+
+kubeadm_config_networking:
+  podSubnet: "{{ pod_network_cidr }}"
+  serviceSubnet: "{{ service_cidr }}"
+  dnsDomain: "{{ dns_domain }}"
+
+kubeadm_config_etcd:
+  external:
+    endpoints:
+      - "https://{{ hostvars['master1']['ansible_default_ipv4']['address'] }}:2379"
+      - "https://{{ hostvars['master2']['ansible_default_ipv4']['address'] }}:2379"
+      - "https://{{ hostvars['master3']['ansible_default_ipv4']['address'] }}:2379"
+    caFile: /etc/kubernetes/pki/etcd/ca.crt
+    certFile: /etc/kubernetes/pki/apiserver-etcd-client.crt
+    keyFile: /etc/kubernetes/pki/apiserver-etcd-client.key

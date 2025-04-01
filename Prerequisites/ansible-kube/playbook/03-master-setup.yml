@@ -1,0 +1,8 @@
+---
+- name: Setup master nodes
+  hosts: masters
+  become: true
+  roles:
+    - master
+  vars:
+    is_first_master: "{{ play_hosts[0] == inventory_hostname }}"

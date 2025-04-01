@@ -1,0 +1,13 @@
+---
+- name: Setup Kubernetes Cluster
+  hosts: all
+  become: yes
+  roles:
+    - prereqs
+    - container-runtime
+    - kubernetes
+    - load-balancer
+    - master
+    - join-nodes
+    - networking
+    - addons

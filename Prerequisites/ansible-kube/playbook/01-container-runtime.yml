@@ -1,0 +1,6 @@
+---
+- name: Install and configure container runtime
+  hosts: all
+  become: true
+  roles:
+    - container-runtime

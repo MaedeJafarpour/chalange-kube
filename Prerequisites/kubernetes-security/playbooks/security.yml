@@ -1,0 +1,16 @@
+---
+- name: Execute all security tasks
+  hosts: all
+  become: true  # Run tasks with root privileges
+  tasks:
+    - name: Apply firewall configuration
+      import_playbook: playbooks/firewall.yml
+
+    - name: Apply SSH hardening
+      import_playbook: playbooks/ssh_hardening.yml
+
+    - name: Apply kernel tuning
+      import_playbook: playbooks/kernel_tuning.yml
+
+    - name: Apply system hardening
+      import_playbook: playbooks/hardening.yml

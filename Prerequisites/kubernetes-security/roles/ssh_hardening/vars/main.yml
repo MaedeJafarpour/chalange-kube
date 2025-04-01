@@ -1,0 +1,3 @@
+---
+ssh_restrict_root: true  # Default to true to disable root login
+ssh_password_auth: false  # Disable password-based authentication

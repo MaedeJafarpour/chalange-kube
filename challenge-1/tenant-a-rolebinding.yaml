@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: tenant-a
+  name: tenant-a-viewer-binding
+subjects:
+- kind: User
+  name: ubuntu
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: tenant-a-viewer
+  apiGroup: rbac.authorization.k8s.io

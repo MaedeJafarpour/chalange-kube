@@ -1,0 +1,48 @@
+---
+- name: Include etcd tasks
+  include_tasks: etcd.yml
+  when: is_first_master|default(true)
+
+- name: Initialize first master or join control plane
+  block:
+    - name: Create kubeadm config
+      template:
+        src: ../../kubernetes/templates/kubeadm-config.yaml.j2
+        dest: /root/kubeadm-config.yaml
+
+    - name: Initialize first master node
+      command: kubeadm init --config /root/kubeadm-config.yaml --upload-certs
+      when: is_first_master|default(true)
+
+    - name: Join additional master nodes
+      command: "kubeadm join {{ control_plane_endpoint }} --token {{ kubeadm_join_token }} --discovery-token-ca-cert-hash sha256:{{ kubeadm_ca_cert_hash }} --control-plane --certificate-key {{ kubeadm_certificate_key }}"
+      when: not is_first_master|default(true)
+  
+  vars:
+    kubeadm_join_token: "{{ lookup('file', '/root/kubeadm_join_token') | default('') }}"
+    kubeadm_ca_cert_hash: "{{ lookup('file', '/root/kubeadm_ca_cert_hash') | default('') }}"
+    kubeadm_certificate_key: "{{ lookup('file', '/root/kubeadm_certificate_key') | default('') }}"
+
+- name: Set up kubectl for root user
+  block:
+    - name: Create .kube directory
+      file:
+        path: /root/.kube
+        state: directory
+        mode: 0700
+
+    - name: Copy admin.conf to root's kube config
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /root/.kube/config
+        remote_src: yes
+        owner: root
+        group: root
+        mode: 0600
+
+- name: Install HAProxy and Keepalived
+  include_tasks: ha.yml
+
+- name: Configure certificates
+  include_tasks: certs.yml
+  when: is_first_master|default(true)

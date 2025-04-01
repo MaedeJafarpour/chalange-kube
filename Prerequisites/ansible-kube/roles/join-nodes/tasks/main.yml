@@ -1,0 +1,14 @@
+---
+- name: Get join command
+  shell: kubeadm token create --print-join-command
+  register: join_command
+  when: inventory_hostname in groups['masters']
+
+- name: Save join command
+  set_fact:
+    kubeadm_join_command: "{{ join_command.stdout }}"
+  when: inventory_hostname in groups['masters']
+
+- name: Join worker nodes to the cluster
+  shell: "{{ hostvars[groups['masters'][0]].kubeadm_join_command }}"
+  when: inventory_hostname in groups['workers']

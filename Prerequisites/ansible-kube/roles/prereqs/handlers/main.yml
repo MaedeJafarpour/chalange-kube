@@ -1,0 +1,6 @@
+---
+- name: Disable swap permanently
+  lineinfile:
+    path: /etc/fstab
+    regexp: '^(.*swap.*)'
+    line: '#\0'

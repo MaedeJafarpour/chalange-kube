@@ -1,0 +1,25 @@
+---
+- name: Install HAProxy
+  apt:
+    name: haproxy
+    state: present
+
+- name: Configure HAProxy
+  copy:
+    dest: /etc/haproxy/haproxy.cfg
+    content: |
+      frontend kubernetes
+        bind *:6443
+        default_backend kube_api_servers
+
+      backend kube_api_servers
+        balance roundrobin
+        server master1 192.168.1.10:6443 check
+        server master2 192.168.1.11:6443 check
+        server master3 192.168.1.12:6443 check
+
+- name: Restart HAProxy
+  systemd:
+    name: haproxy
+    state: restarted
+    enabled: yes

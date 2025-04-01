@@ -1,0 +1,9 @@
+---
+firewall_ports:
+  - 10250/tcp  # kubelet API
+  - 30000-32767/tcp  # NodePort services
+
+ssh_restrict_root: true
+kernel_parameters:
+  - { name: "vm.swappiness", value: 0 }
+  - { name: "net.ipv4.ip_forward", value: 1 }

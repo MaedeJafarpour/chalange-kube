@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tenant-a
+  labels:
+    tenant: a
+    security-tier: gold
+    compliance: pci-dss
+  annotations:
+    description: "Namespace for Tenant A, complying with PCI-DSS standards."
+    created-by: "admin"
+    team: "security"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tenant-b
+  labels:
+    tenant: b
+    security-tier: silver
+    compliance: hipaa
+  annotations:
+    description: "Namespace for Tenant B, compliant with HIPAA regulations."
+    created-by: "admin"
+    team: "compliance"

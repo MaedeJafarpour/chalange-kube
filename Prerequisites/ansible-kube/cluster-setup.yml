@@ -1,0 +1,8 @@
+---
+- import_playbook: playbooks/00-prerequisites.yml
+- import_playbook: playbooks/01-container-runtime.yml
+- import_playbook: playbooks/02-kube-components.yml
+- import_playbook: playbooks/03-master-setup.yml
+- import_playbook: playbooks/04-worker-setup.yml
+- import_playbook: playbooks/05-networking.yml
+- import_playbook: playbooks/06-addons.yml

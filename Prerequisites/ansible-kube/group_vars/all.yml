@@ -1,0 +1,25 @@
+---
+# System settings
+timezone: UTC
+system_locale: en_US.UTF-8
+
+# Kubernetes general settings
+kube_version: "1.28.0"
+kube_cert_validity_days: 3650
+kube_service_addresses: "10.96.0.0/12"
+kube_pod_network_cidr: "10.244.0.0/16"
+kube_proxy_mode: "ipvs"
+kube_network_plugin: "calico"
+
+# Container runtime (containerd)
+containerd_version: "1.7.0"
+containerd_config_file: "/etc/containerd/config.toml"
+pause_image: "registry.k8s.io/pause:3.9"
+
+# System requirements
+sysctl_settings:
+  net.ipv4.ip_forward: 1
+  net.bridge.bridge-nf-call-iptables: 1
+  net.bridge.bridge-nf-call-ip6tables: 1
+  fs.inotify.max_user_watches: 524288
+  fs.inotify.max_user_instances: 512

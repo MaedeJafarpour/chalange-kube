@@ -1,0 +1,4 @@
+# Kubernetes required settings
+{% for key, value in sysctl_settings.items() %}
+{{ key }} = {{ value }}
+{% endfor %}
