@@ -7,11 +7,11 @@ This project automates the deployment and management of a high-availability Kube
 
 This repository contains the scripts and configuration to deploy a high-availability Kubernetes cluster using multiple tools. The project is structured into three main parts:
 
-1.Ansible-based Kubernetes Setup: Handles Kubernetes installation and configuration.
+1. Ansible-based Kubernetes Setup: Handles Kubernetes installation and configuration.
 
-2.Security Hardening: Ensures that the cluster is secure with configurations for firewalls, SSH, and kernel settings.
+2. Security Hardening: Ensures that the cluster is secure with configurations for firewalls, SSH, and kernel settings.
 
-3.Terraform & Proxmox Setup: Deploys the infrastructure for Kubernetes clusters using Proxmox and manages it with Terraform.
+3. Terraform & Proxmox Setup: Deploys the infrastructure for Kubernetes clusters using Proxmox and manages it with Terraform.
 
 This setup is ideal for real-time, production-level Kubernetes environments, and it follows best practices for scalability and security.
 
@@ -22,6 +22,7 @@ This setup is ideal for real-time, production-level Kubernetes environments, and
 
 
 Tools Required
+
 *Ansible: Used for automating the configuration of your Kubernetes cluster.
 
 *Terraform: Used for provisioning infrastructure (via Proxmox).
