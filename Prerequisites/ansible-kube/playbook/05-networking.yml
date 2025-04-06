@@ -1,6 +1,0 @@
----
-- name: Install network plugin
-  hosts: masters[0]  # Run only on first master
-  become: true
-  roles:
-    - networking

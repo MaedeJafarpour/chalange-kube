@@ -1,7 +1,0 @@
----
-- name: Scale worker nodes
-  hosts: new_workers
-  become: true
-  roles:
-    - worker
-

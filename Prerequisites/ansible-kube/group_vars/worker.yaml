@@ -1,9 +1,0 @@
----
-# Worker specific settings
-kubelet_max_pods: 110
-kubelet_cgroup_driver: "systemd"
-kubelet_fail_swap_on: false
-
-# Node labels and taints
-node_labels: {}
-node_taints: []

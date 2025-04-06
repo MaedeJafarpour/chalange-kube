@@ -1,8 +1,0 @@
----
-- name: Scale master nodes
-  hosts: new_masters
-  become: true
-  roles:
-    - master
-  vars:
-    is_first_master: false
