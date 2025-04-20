@@ -1,0 +1,9 @@
+---
+- import_playbook: k8s_master.yml
+- import_playbook: k8s_worker.yml
+
+roles:
+  - { role: firewall, tags: ['firewall'] }
+  - { role: ssh_hardening, tags: ['ssh'] }
+  - { role: hardening, tags: ['system'] }
+

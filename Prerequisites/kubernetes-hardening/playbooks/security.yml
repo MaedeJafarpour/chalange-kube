@@ -1,0 +1,9 @@
+---
+- name: Apply security hardening to any node group
+  hosts: all
+  become: true
+  roles:
+    - firewall
+    - ssh_hardening
+    - hardening
+    - kernel_hardening

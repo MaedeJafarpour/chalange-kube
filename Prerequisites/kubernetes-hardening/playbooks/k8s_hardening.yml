@@ -1,0 +1,12 @@
+---
+- name: Harden Kubernetes master nodes
+  hosts: k8s_master
+  become: true
+  vars:
+    node_type: "master"
+  roles:
+    - common
+    - firewall
+    - ssh_hardening
+    - hardening
+    - kernel_hardening
