@@ -1,125 +1,106 @@
-terraform {
-  required_providers {
-    proxmox = {
-      source = "telmate/proxmox"
-      version = ">= 3.0.0"
-    }
-  }
-}
 provider "proxmox" {
-  pm_api_url      = var.pm_api_url
-  pm_user         = var.pm_user
-  pm_api_token_id = var.pm_api_token_id
+  pm_api_url          = var.pm_api_url
+  pm_user             = var.pm_user
+  pm_api_token_id     = var.pm_api_token_id
   pm_api_token_secret = var.pm_api_token_secret
-#  pm_password     = ""
-  pm_tls_insecure = true
+  pm_tls_insecure     = true # In prod, use valid CA cert
+  pm_timeout          = 600  # Increased timeout for HA operations
 }
 
-
-#module "master" {
-#  source = "./templates/master"
-#}
-#
-#module "worker" {
-#  source = "./templates/worker"
-#}
-
-
-
- #master node configuration
-resource "proxmox_vm_qemu" "k8s_master" {
-  agent       = 1
-  qemu_os     = "l26" 
-  clone       = "ubuntu-2204-cloudinit-template"
-  count       = var.master_nodes
-  name        = "k8s-master-${count.index + 1}"
-  target_node = var.pm_node_name
-#  clone       = var.vm_template
-  os_type     = "cloud-init"
-  cores       = 2
-  sockets     = 1
-  cpu_type = "host"
-  memory      = 8192
-  scsihw      = "virtio-scsi-pci"
-  bootdisk    = "scsi0"
-
-
-  disk {
-    slot     = "scsi0"
-    size     = "50G"
-    type     = "disk"
-    storage  = "local-lvm"
-    iothread = true
-  }
+# HA Group Configuration
+resource "proxmox_vm_qemu" "ha_group" {
+  count = var.ha_config.enabled ? 1 : 0
   
-
-
-  network {
-    id     = 0        # Corrected to numeric ID
-    model  = "virtio"
-    bridge = "vmbr0"
-  }
-
-
-
-
-  lifecycle {
-    ignore_changes = [
-      network
-    ]
-  }
-
-  ipconfig0 = "ip=192.168.1.${count.index + 100}/24,gw=192.168.1.1"
-
-  ciuser  = "ubuntu"
-  sshkeys = file("~/.ssh/id_rsa.pub")
+  hagroup    = var.ha_config.ha_group
+  nodes      = [var.proxmox_node]
+  restriction = "nodes=${var.proxmox_node}"
+  type       = "vm"
 }
 
-# worker node configuration
-resource "proxmox_vm_qemu" "k8s_worker" {
-  clone       = "ubuntu-2204-cloudinit-template"
-  count       = var.worker_nodes
-  name        = "k8s-worker-${count.index + 1}"
-  target_node = var.pm_node_name
-#  clone       = var.vm_template
+module "k8s_masters" {
+  source = "./modules/master"
+
+  # Proxmox Configuration
+  proxmox_node   = var.proxmox_node
+  vm_template    = var.vm_template
+  storage_pool   = var.storage_pool
+  api_token      = "${var.pm_api_token_id}=${var.pm_api_token_secret}"
+  
+  # Cluster Configuration
+  node_count     = var.masters.count
+  cores          = var.masters.cores
+  memory         = var.masters.memory
+  disk_size      = var.masters.disk_size
+  ip_start       = var.masters.ip_start
+  ha_enabled     = var.ha_config.enabled
+  ha_group       = var.ha_config.ha_group
+
+  # Network
+  network_config = var.network_config
+  ssh_config     = var.ssh_config
+}
+
+module "k8s_workers" {
+  source = "./modules/worker"
+
+  # Proxmox Configuration
+  proxmox_node   = var.proxmox_node
+  vm_template    = var.vm_template
+  storage_pool   = var.storage_pool
+  
+  # Cluster Configuration
+  node_count     = var.workers.count
+  cores          = var.workers.cores
+  memory         = var.workers.memory
+  disk_size      = var.workers.disk_size
+  ip_start       = var.workers.ip_start
+
+  # Network
+  network_config = var.network_config
+  ssh_config     = var.ssh_config
+
+  depends_on = [module.k8s_masters]
+}
+
+# Load Balancer for Control Plane
+resource "proxmox_vm_qemu" "load_balancer" {
+  name        = "k8s-lb-01"
+  target_node = var.proxmox_node
+  clone       = var.vm_template
   agent       = 1
-  os_type     = "cloud-init"
-  cores       = 4
-  sockets     = 1
-  cpu_type    = "host"
-  memory      = 16384
-  scsihw      = "virtio-scsi-pci"
-  bootdisk    = "scsi0"
+  cores       = 2
+  memory      = 4096
 
   disk {
-    slot     = "scsi0"
-    size     = "50G"
-    type     = "disk"
-    storage  = "local-lvm"
-    iothread = true
+    size     = "20G"
+    storage  = var.storage_pool
+    type     = "scsi"
   }
-
 
   network {
-    id     = 0        # Corrected to numeric ID
     model  = "virtio"
-    bridge = "vmbr0"
+    bridge = var.network_config.bridge
   }
 
-
-
-
+  ipconfig0 = "ip=${cidrhost(var.network_config.cidr, 90)}/24,gw=${var.network_config.gateway}"
+  
   lifecycle {
-    ignore_changes = [
-      network,
+    ignore_changes = [network, disk]
+  }
+
+  connection {
+    type        = "ssh"
+    user        = var.ssh_config.username
+    private_key = file(replace(var.ssh_config.key_path, ".pub", ""))
+    host        = self.default_ipv4_address
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt-get install -y haproxy",
+      templatefile("${path.module}/templates/haproxy.cfg", {
+        masters = module.k8s_masters.master_ips
+      })
     ]
   }
-
-  ipconfig0 = "ip=192.168.1.${count.index + 100}/24,gw=192.168.1.1"
-
-  ciuser  = "ubuntu"
-  sshkeys = file("~/.ssh/id_rsa.pub")
 }
-
-
-
