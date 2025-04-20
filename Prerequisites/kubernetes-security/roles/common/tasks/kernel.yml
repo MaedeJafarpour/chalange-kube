@@ -1,8 +1,0 @@
----
-- name: Apply kernel parameters
-  ansible.builtin.sysctl:
-    name: "{{ item.name }}"
-    value: "{{ item.value }}"
-    state: present
-    reload: yes
-  loop: "{{ kernel_parameters }}"

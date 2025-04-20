@@ -1,6 +1,0 @@
----
-firewall_enabled: true
-ssh_hardening: true
-kernel_tuning: true
-system_hardening: true
-

@@ -1,4 +1,0 @@
----
-firewall_ports: []
-ssh_restrict_root: true
-kernel_parameters: []

@@ -1,5 +1,0 @@
----
-- name: Reload firewall
-  ansible.builtin.systemd:
-    name: firewalld
-    state: restarted

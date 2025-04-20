@@ -1,8 +1,0 @@
----
-- name: Disable root login (if configured)
-  ansible.builtin.lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: '^PermitRootLogin'
-    line: "PermitRootLogin {{ 'yes' if ssh_restrict_root == false else 'no' }}"
-    backup: yes
-  notify: Restart SSH
