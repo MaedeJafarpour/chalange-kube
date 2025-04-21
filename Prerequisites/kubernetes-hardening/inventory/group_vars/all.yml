@@ -4,3 +4,19 @@ ssh_hardening: true
 kernel_tuning: true
 system_hardening: true
 
+hardening:
+  ssh:
+    protocol: 2
+    root_login: false
+    max_auth_tries: 3
+    client_alive_interval: 300
+
+  kernel:
+    sysctl:
+      - { name: net.ipv4.conf.all.rp_filter, value: 1 }
+      - { name: kernel.exec-shield, value: 1 }
+
+  auditd:
+    rules:
+      - -a always,exit -F arch=b64 -S adjtimex -k time-change
+      - -w /etc/ssh/sshd_config -p wa -k sshd
