@@ -1,28 +1,53 @@
-# Proxmox Kubernetes Cluster Infrastructure
+# Production-Grade Kubernetes Cluster on Proxmox
 
-![HA Architecture Diagram](docs/architecture.png) 
-*Production-grade Kubernetes cluster with automated failover and monitoring*
+![HA Cluster Architecture](docs/ha-cluster.png) 
+*Highly Available Kubernetes Cluster with Automated Monitoring and Backup*
 
-Terraform module for deploying enterprise-ready Kubernetes clusters on Proxmox VE with built-in HA, observability, and disaster recovery.
+## Features
 
-## 🚀 Key Features
+- **Military-Grade Security** 🔒 
+  - Vault-Integrated Secrets Management
+  - Automated Certificate Rotation
+  - CIS-Hardened Node Images
 
-| Feature                      | Benefits                                                                 |
-|------------------------------|--------------------------------------------------------------------------|
-| **High Availability**        | 99.95% SLA with automatic failover and node anti-affinity                |
-| **Zero-Touch Monitoring**    | Preconfigured Prometheus/Grafana stack with 50+ Kubernetes dashboards    |
-| **Military-Grade Security**  | TLS 1.3 encryption, RBAC, and secrets rotation                          |
-| **Disaster Recovery**         | Hourly incremental backups with 7-day retention and 1-click restore      |
-| **Auto-Scaling**             | Horizontal pod scaling based on custom metrics                          |
+- **Zero-Downtime Operations** 🕒 
+  - Rolling Control Plane Updates
+  - Proxmox HA Group Integration
+  - Priority-Based Failover (1-5)
+  - Anti-Affinity Rules
 
-## 📋 Prerequisites
+- **Observability Stack** 📊 
+  - Prometheus/Grafana Monitoring
+  - Loki/Promtail Logging
+  - Alertmanager Integration
+  - Prebuilt K8s Dashboards
 
-1. **Infrastructure**
-   - Proxmox VE 7.4+ cluster with ≥3 nodes
-   - 10Gbps network infrastructure
-   - Shared storage (Ceph/RBD recommended)
+- **Disaster Recovery** ⚡ 
+  - Hourly ZSTD-Compressed Backups
+  - 7-Day Retention Policy
+  - 1-Click Cluster Restoration
+  - Cross-Datacenter Replication
 
-2. **Credentials** 
-   ```bash
-   # Generate SSH keys if missing
-   ssh-keygen -t ed25519 -f ~/.ssh/proxmox-k8s -N ""
+## Prerequisites
+
+| Component              | Requirement                          |
+|------------------------|--------------------------------------|
+| Proxmox VE Version     | 8.1+                                |
+| Terraform Version      | 1.6.6+                              |
+| Storage                | 100GB+ Fast Storage (NVMe Preferred)|
+| Network                | 10Gbps Recommended                  |
+| API Permissions        | VM.Allocate, Datastore.Allocate     |
+
+## Quick Deployment
+
+```bash
+# Clone repository
+git clone https://github.com/MaedeJafarpour/chalange-kube/tree/main/Prerequisites/proxmox-k8s-terraform  && cd proxmox-k8s-terraform
+
+# Initialize secrets (never commit these!)
+echo 'pm_api_token_secret = "your_s3cr3t"' > terraform.tfvars  change paste your variable here like :
+pm_api_url , pm_user , ... 
+chmod 600 terraform.tfvars
+
+# Deploy cluster
+terraform init && terraform apply -auto-approve
