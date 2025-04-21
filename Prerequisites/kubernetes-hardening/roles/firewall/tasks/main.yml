@@ -22,3 +22,15 @@
     name: firewalld
     state: restarted
   notify: Reload firewall
+
+
+- name: Apply base firewall rules
+  ansible.builtin.firewalld:
+    zone: public
+    permanent: yes
+    immediate: yes
+    state: enabled
+    service: "{{ item }}"
+  loop: "{{ firewall_allowed_services }}"
+  notify: Reload firewalld
+  tags: firewall,rules

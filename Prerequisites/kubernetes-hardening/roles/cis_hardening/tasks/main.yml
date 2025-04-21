@@ -1,0 +1,12 @@
+- name: Apply CIS Benchmark 2.1.1 - Remove telnet-server
+  ansible.builtin.yum:
+    name: telnet-server
+    state: absent
+  tags: cis,level1
+
+- name: CIS 1.1.1.1 - Ensure mounting of cramfs is disabled
+  ansible.builtin.lineinfile:
+    path: /etc/modprobe.d/CIS.conf
+    line: "install cramfs /bin/true"
+    create: yes
+  tags: cis,kernel

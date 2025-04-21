@@ -22,3 +22,46 @@
     line: 'PubkeyAuthentication yes'
     backup: yes
   notify: Restart SSH
+
+- name: Ensure SSH package is latest
+  ansible.builtin.yum:
+    name: openssh-server
+    state: latest
+  tags: ssh,patch
+
+- name: Configure SSH daemon
+  ansible.builtin.template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: 0600
+    validate: /usr/sbin/sshd -t -f %s
+  notify: Restart SSH
+  tags: ssh,config
+
+- name: Remove weak MAC algorithms
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^MACs'
+    line: "MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com"
+    insertafter: '^#MACs'
+  notify: Restart SSH
+  tags: ssh,crypto
+
+
+
+- name: Apply filesystem protections
+  ansible.builtin.mount:
+    path: /tmp
+    state: present
+    opts: defaults,noexec,nosuid,nodev
+    fstype: tmpfs
+  tags: filesystem
+
+- name: Disable core dumps
+  ansible.builtin.sysctl:
+    name: kernel.core_pattern
+    value: /dev/null
+    sysctl_set: yes
+  tags: kernel
