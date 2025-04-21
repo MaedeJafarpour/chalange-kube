@@ -1,0 +1,33 @@
+---
+- name: Verify Monitoring Stack
+  hosts: main_servers
+  tasks:
+    - name: Check Prometheus targets
+      uri:
+        url: http://localhost:9090/api/v1/targets
+        return_content: yes
+      register: prometheus_targets
+      until: prometheus_targets.json.data.activeTargets | selectattr("health", "equalto", "up") | list | length == (groups['agent_servers'] | length + 1)
+      retries: 10
+      delay: 10
+
+    - name: Check Loki readiness
+      uri:
+        url: http://localhost:3100/ready
+        status_code: 200
+      register: loki_ready
+      until: loki_ready.status == 200
+      retries: 5
+      delay: 5
+
+    - name: Check Grafana datasources
+      uri:
+        url: http://localhost:3000/api/datasources
+        method: GET
+        force_basic_auth: yes
+        user: "{{ grafana_admin_user }}"
+        password: "{{ grafana_admin_password }}"
+      register: grafana_datasources
+      until: grafana_datasources.json | length >= 2
+      retries: 5
+      delay: 5

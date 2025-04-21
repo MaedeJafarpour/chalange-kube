@@ -1,0 +1,26 @@
+---
+# Global variables
+timezone: UTC
+monitoring_domain: 192.168.30.22
+
+# Main server components
+prometheus_version: "2.51.1"
+grafana_version: "11.0.0"
+loki_version: "3.0.0"
+cadvisor_version: "v0.47.0"
+node_exporter_version: "1.7.0"
+
+# Agent components
+alloy_version: "1.0.0"
+
+# Network settings
+prometheus_port: 9090
+grafana_port: 3000
+loki_port: 3100
+node_exporter_port: 9100
+cadvisor_port: 8080
+alloy_port: 12345
+
+# Authentication
+grafana_admin_user: admin
+grafana_admin_password: "{{ vault_grafana_admin_password }}"

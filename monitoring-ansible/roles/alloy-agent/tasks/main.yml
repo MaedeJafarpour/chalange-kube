@@ -1,0 +1,45 @@
+---
+- name: Create Alloy directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: monitoring
+    group: monitoring
+    mode: '0755'
+  with_items:
+    - "{{ alloy_config_dir }}"
+    - "{{ alloy_log_dir }}"
+
+- name: Download and install Alloy
+  get_url:
+    url: "https://github.com/grafana/alloy/releases/download/v{{ alloy_version }}/alloy_{{ alloy_version }}_linux_amd64.tar.gz"
+    dest: /tmp/alloy.tar.gz
+    checksum: "sha256:CHECKSUM_GOES_HERE"
+
+- name: Extract and install Alloy
+  unarchive:
+    src: /tmp/alloy.tar.gz
+    dest: /usr/local/bin
+    remote_src: yes
+    mode: '0755'
+    extra_opts: "--strip-components=1"
+
+- name: Create Alloy systemd service
+  template:
+    src: alloy.service.j2
+    dest: /etc/systemd/system/alloy.service
+    mode: '0644'
+  notify: restart alloy
+
+- name: Configure Alloy based on Docker presence
+  template:
+    src: "{{ 'config-with-docker.alloy' if docker_installed else 'config-no-docker.alloy' }}"
+    dest: "{{ alloy_config_dir }}/{{ alloy_config_file }}"
+    mode: '0644'
+  notify: restart alloy
+
+- name: Enable and start Alloy service
+  systemd:
+    name: alloy
+    state: started
+    enabled: yes

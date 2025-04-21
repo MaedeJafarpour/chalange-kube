@@ -1,0 +1,7 @@
+---
+- name: Configure Monitoring Agents
+  hosts: agent_servers
+  become: true
+  roles:
+    - alloy-agent
+    - docker-monitoring

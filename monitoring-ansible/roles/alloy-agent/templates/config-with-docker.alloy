@@ -1,0 +1,35 @@
+// Includes all system monitoring from config-no-docker.alloy
+prometheus.scrape "system" {
+  targets = [
+    {"__address__" = "localhost:9100", "instance" = "{{ inventory_hostname }}"},
+    {"__address__" = "localhost:8080", "instance" = "{{ inventory_hostname }}"},
+  ]
+  forward_to = [prometheus.remote_write.main.receiver]
+}
+
+prometheus.remote_write "main" {
+  endpoint {
+    url = "{{ main_server_url }}:9090/api/v1/write"
+  }
+}
+
+loki.source.file "system_logs" {
+  targets = [
+    {__path__ = "/var/log/syslog", "job" = "syslog"},
+    {__path__ = "/var/log/auth.log", "job" = "auth"},
+    {__path__ = "/var/log/docker.log", "job" = "docker"},
+  ]
+  forward_to = [loki.write.main.receiver]
+}
+
+loki.source.docker "docker_logs" {
+  host = "unix:///var/run/docker.sock"
+  forward_to = [loki.write.main.receiver]
+  labels = {instance = "{{ inventory_hostname }}"}
+}
+
+loki.write "main" {
+  endpoint {
+    url = "{{ main_server_url }}:3100/loki/api/v1/push"
+  }
+}

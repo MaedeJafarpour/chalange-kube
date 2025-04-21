@@ -1,0 +1,26 @@
+---
+- name: Ensure cAdvisor Docker image is present
+  docker_image:
+    name: gcr.io/cadvisor/cadvisor:{{ cadvisor_version }}
+    source: pull
+    force_source: yes
+
+- name: Run cAdvisor container (main server)
+  docker_container:
+    name: cadvisor
+    image: gcr.io/cadvisor/cadvisor:{{ cadvisor_version }}
+    state: started
+    restart_policy: unless-stopped
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    ports:
+      - "{{ cadvisor_port }}:8080"
+    capabilities:
+      - SYS_PTRACE
+    labels:
+      monitoring: "true"
+  when: inventory_hostname in groups['main_servers']

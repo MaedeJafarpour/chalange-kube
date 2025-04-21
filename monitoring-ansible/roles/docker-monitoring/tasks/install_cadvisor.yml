@@ -1,0 +1,16 @@
+---
+- name: Run cAdvisor container
+  docker_container:
+    name: cadvisor
+    image: gcr.io/cadvisor/cadvisor:{{ cadvisor_version }}
+    state: started
+    restart_policy: unless-stopped
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+      - "{{ cadvisor_port }}:8080"
+    capabilities:
+      - SYS_PTRACE

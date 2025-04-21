@@ -1,0 +1,26 @@
+prometheus.scrape "system" {
+  targets = [
+    {"__address__" = "localhost:9100", "instance" = "{{ inventory_hostname }}"},
+  ]
+  forward_to = [prometheus.remote_write.main.receiver]
+}
+
+prometheus.remote_write "main" {
+  endpoint {
+    url = "{{ main_server_url }}:9090/api/v1/write"
+  }
+}
+
+loki.source.file "system_logs" {
+  targets = [
+    {__path__ = "/var/log/syslog", "job" = "syslog"},
+    {__path__ = "/var/log/auth.log", "job" = "auth"},
+  ]
+  forward_to = [loki.write.main.receiver]
+}
+
+loki.write "main" {
+  endpoint {
+    url = "{{ main_server_url }}:3100/loki/api/v1/push"
+  }
+}

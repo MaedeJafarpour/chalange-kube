@@ -1,0 +1,10 @@
+---
+- name: Check if Docker monitoring should be installed
+  assert:
+    that: docker_installed
+    msg: "Docker not detected, skipping Docker monitoring setup"
+  tags: always
+
+- name: Install cAdvisor for Docker monitoring (if Docker present)
+  include_tasks: install_cadvisor.yml
+  when: docker_installed

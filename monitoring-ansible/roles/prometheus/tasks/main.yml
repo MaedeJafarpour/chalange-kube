@@ -1,0 +1,81 @@
+---
+- name: Create Prometheus user and directories
+  user:
+    name: prometheus
+    system: yes
+    shell: /bin/false
+    comment: "Prometheus monitoring user"
+
+- name: Create directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: prometheus
+    group: prometheus
+    mode: '0755'
+  with_items:
+    - /etc/prometheus
+    - /var/lib/prometheus
+
+- name: Download Prometheus
+  get_url:
+    url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
+    dest: /tmp/prometheus.tar.gz
+#    checksum: "sha256:CHECKSUM_GOES_HERE"
+
+- name: Extract and install Prometheus
+  unarchive:
+    src: /tmp/prometheus.tar.gz
+    dest: /tmp
+    remote_src: yes
+    extra_opts: "--strip-components=1"
+  register: prometheus_extracted
+
+- name: Install Prometheus binaries
+  copy:
+    remote_src: yes
+    src: "/tmp/prometheus"
+    dest: "/usr/local/bin/prometheus"
+    owner: prometheus
+    group: prometheus
+    mode: '0755'
+
+- name: Install promtool
+  copy:
+    remote_src: yes
+    src: "/tmp/promtool"
+    dest: "/usr/local/bin/promtool"
+    owner: prometheus
+    group: prometheus
+    mode: '0755'
+
+- name: Configure Prometheus
+  template:
+    src: prometheus.yml.j2
+    dest: /etc/prometheus/prometheus.yml
+    owner: prometheus
+    group: prometheus
+    mode: '0644'
+  notify: restart prometheus
+
+- name: Install Prometheus systemd service
+  template:
+    src: prometheus.service.j2
+    dest: /etc/systemd/system/prometheus.service
+    mode: '0644'
+  notify: restart prometheus
+
+- name: Enable and start Prometheus
+  systemd:
+    name: prometheus
+    state: started
+    enabled: yes
+
+- name: Configure alert rules
+  template:
+    src: alert_rules.yml.j2
+    dest: /etc/prometheus/alert_rules.yml
+    owner: prometheus
+    group: prometheus
+    mode: '0644'
+  notify: restart prometheus

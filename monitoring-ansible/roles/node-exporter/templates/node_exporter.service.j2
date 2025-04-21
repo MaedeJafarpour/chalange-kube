@@ -1,0 +1,19 @@
+[Unit]
+Description=Node Exporter
+After=network.target
+
+[Service]
+User=node_exporter
+Group=node_exporter
+Type=simple
+ExecStart=/usr/local/bin/node_exporter \
+    --web.listen-address=:{{ node_exporter_port }} \
+    --collector.systemd \
+    --collector.systemd.unit-whitelist="(docker|ssh|nginx|postgresql).service" \
+    --collector.filesystem.ignored-mount-points="^/(sys|proc|dev|run)($|/)" \
+    --collector.netdev.ignored-devices="^(lo|docker0|veth.*)$"
+
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,22 @@
+---
+# Agent server specific settings
+main_server_url: "http://192.168.30.22"
+
+# Alloy settings
+alloy_config_dir: /etc/alloy
+alloy_config_file: config.alloy
+alloy_log_dir: /var/log/alloy
+
+# Docker monitoring
+docker_metrics_interval: "15s"
+docker_logs_enabled: true
+
+
+alloy_extra_labels:
+  env: production
+  region: .
+
+# Docker specific settings (only applied if Docker is present)
+docker_log_paths:
+  - /var/log/docker.log
+  - /var/log/containers/*.log

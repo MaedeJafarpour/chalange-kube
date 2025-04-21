@@ -1,0 +1,16 @@
+---
+# Main monitoring server specific settings
+monitoring_server_ip: "192.168.30.22"
+
+# Prometheus settings
+prometheus_retention: "30d"
+prometheus_scrape_interval: "15s"
+
+# Loki settings
+loki_retention_period: "744h"  # 31 days
+
+# Grafana settings
+grafana_plugins:
+  - grafana-piechart-panel
+  - grafana-worldmap-panel
+  - vonage-status-panel

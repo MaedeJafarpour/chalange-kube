@@ -1,0 +1,49 @@
+groups:
+- name: host-alerts
+  rules:
+  - alert: HighCPUUsage
+    expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100 > 80
+    for: 10m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High CPU usage on {{ "{{ $labels.instance }}" }}"
+      description: "CPU usage is at {{ "{{ $value }}" }}% for last 10 minutes"
+
+  - alert: HighMemoryUsage
+    expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+    for: 10m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High memory usage on {{ "{{ $labels.instance }}" }}"
+      description: "Memory usage is at {{ "{{ $value }}" }}% for last 10 minutes"
+
+  - alert: DiskSpaceCritical
+    expr: (node_filesystem_avail_bytes{mountpoint!~"/(run|var/run|sys|dev).*",fstype!="tmpfs"} / node_filesystem_size_bytes{mountpoint!~"/(run|var/run|sys|dev).*",fstype!="tmpfs"} * 100) < 10
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Low disk space on {{ "{{ $labels.instance }}" }} ({{ "{{ $labels.mountpoint }}" }})"
+      description: "Only {{ "{{ $value }}" }}% space left on {{ "{{ $labels.mountpoint }}" }}"
+
+- name: docker-alerts
+  rules:
+  - alert: ContainerRestarted
+    expr: changes(container_last_seen{name=~".+"}[15m]) > 0
+    for: 0m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Container restarted on {{ "{{ $labels.instance }}" }}"
+      description: "Container {{ "{{ $labels.name }}" }} has restarted"
+
+  - alert: HighContainerCPU
+    expr: (sum by(name,instance) (rate(container_cpu_usage_seconds_total{name!=""}[5m])) * 100) > 70
+    for: 10m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High CPU in container {{ "{{ $labels.name }}" }} on {{ "{{ $labels.instance }}" }}"
+      description: "CPU usage is at {{ "{{ $value }}" }}% for last 10 minutes"

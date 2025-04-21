@@ -1,0 +1,10 @@
+- name: Check if Docker is installed
+  stat:
+    path: /var/run/docker.sock
+  register: docker_sock
+  changed_when: false
+
+- name: Set fact for Docker presence
+  set_fact:
+    docker_installed: "{{ docker_sock.stat.exists }}"
+  tags: always

@@ -1,0 +1,11 @@
+---
+- name: Configure Main Monitoring Server
+  hosts: main_servers
+  become: true
+  roles:
+    - prometheus
+    - grafana
+    - loki
+    - node-exporter
+    - cadvisor
+    - alertmanager

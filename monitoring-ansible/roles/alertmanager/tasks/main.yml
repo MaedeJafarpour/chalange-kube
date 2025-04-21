@@ -1,0 +1,52 @@
+---
+- name: Create Alertmanager user
+  user:
+    name: alertmanager
+    system: yes
+    shell: /bin/false
+    comment: "Alertmanager User"
+
+- name: Download Alertmanager
+  get_url:
+    url: "https://github.com/prometheus/alertmanager/releases/download/v0.25.0/alertmanager-0.25.0.linux-amd64.tar.gz"
+    dest: /tmp/alertmanager.tar.gz
+#    checksum: "sha256:CHECKSUM_GOES_HERE"
+
+- name: Install Alertmanager
+  unarchive:
+    src: /tmp/alertmanager.tar.gz
+    dest: /opt
+    remote_src: yes
+    extra_opts: "--strip-components=1"
+
+- name: Create config directory
+  file:
+    path: /etc/alertmanager
+    state: directory
+    owner: alertmanager
+    group: alertmanager
+    mode: '0755'
+
+- name: Configure Alertmanager
+  template:
+    src: alertmanager.yml.j2
+    dest: /etc/alertmanager/alertmanager.yml
+    owner: alertmanager
+    group: alertmanager
+    mode: '0644'
+  notify: restart alertmanager
+
+- name: Create systemd service
+  template:
+    src: alertmanager.service.j2
+    dest: /etc/systemd/system/alertmanager.service
+    mode: '0644'
+  notify: restart alertmanager
+
+- name: Enable and start Alertmanager
+  systemd:
+    name: alertmanager
+    state: started
+    enabled: yes
+
+

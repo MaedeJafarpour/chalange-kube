@@ -1,0 +1,17 @@
+[Unit]
+Description=Grafana Alloy
+After=network-online.target
+
+[Service]
+User=monitoring
+Group=monitoring
+Type=simple
+ExecStart=/usr/local/bin/alloy run --config.file={{ alloy_config_dir }}/{{ alloy_config_file }} --storage.path={{ alloy_config_dir }}/data
+Restart=on-failure
+SuccessExitStatus=0
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=alloy
+
+[Install]
+WantedBy=multi-user.target

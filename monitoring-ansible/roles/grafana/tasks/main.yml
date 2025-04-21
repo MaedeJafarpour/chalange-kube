@@ -1,0 +1,90 @@
+---
+- name: Add Grafana APT key
+  apt_key:
+    url: https://packages.grafana.com/gpg.key
+    state: present
+
+- name: Add Grafana repository
+  apt_repository:
+    repo: "deb https://packages.grafana.com/oss/deb stable main"
+    state: present
+    filename: grafana
+
+- name: Install Grafana
+  apt:
+    name: grafana
+    state: present
+    update_cache: yes
+
+- name: Configure Grafana
+  template:
+    src: grafana.ini.j2
+    dest: /etc/grafana/grafana.ini
+    mode: '0644'
+  notify: restart grafana
+
+- name: Install Grafana plugins
+  command: grafana-cli plugins install {{ item }}
+  with_items: "{{ grafana_plugins }}"
+  notify: restart grafana
+
+- name: Ensure Grafana is running and enabled
+  systemd:
+    name: grafana-server
+    state: started
+    enabled: yes
+
+- name: Wait for Grafana to be ready
+  uri:
+    url: http://localhost:3000/api/health
+    method: GET
+    status_code: 200
+    timeout: 10
+  register: grafana_health
+  until: grafana_health.status == 200
+  retries: 10
+  delay: 5
+
+- name: Configure Grafana datasources
+  uri:
+    url: http://localhost:3000/api/datasources
+    method: POST
+    body_format: json
+    body:
+      name: Prometheus
+      type: prometheus
+      url: http://localhost:9090
+      access: proxy
+      isDefault: true
+    status_code: 200
+    force_basic_auth: yes
+    user: "{{ grafana_admin_user }}"
+    password: "{{ grafana_admin_password }}"
+  register: prometheus_datasource
+  retries: 3
+  delay: 5
+  until: prometheus_datasource.status == 200
+
+- name: Configure Loki datasource
+  uri:
+    url: http://localhost:3000/api/datasources
+    method: POST
+    body_format: json
+    body:
+      name: Loki
+      type: loki
+      url: http://localhost:3100
+      access: proxy
+    status_code: 200
+    force_basic_auth: yes
+    user: "{{ grafana_admin_user }}"
+    password: "{{ grafana_admin_password }}"
+  register: loki_datasource
+  retries: 3
+  delay: 5
+  until: loki_datasource.status == 200
+
+
+- name: Import Grafana dashboards
+  include_tasks: configure-dashboards.yml
+  when: inventory_hostname in groups['main_servers']
