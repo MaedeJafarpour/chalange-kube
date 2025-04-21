@@ -45,8 +45,7 @@
 git clone https://github.com/MaedeJafarpour/chalange-kube/tree/main/Prerequisites/proxmox-k8s-terraform  && cd proxmox-k8s-terraform
 
 # Initialize secrets 
-echo 'pm_api_token_secret = "your_s3cr3t"' > terraform.tfvars  #change and  paste your variable here like :
-pm_api_url , pm_user , pm_api_token_secret ... 
+echo 'pm_api_token_secret = "your_s3cr3t"' > terraform.tfvars  #change and  paste your variable here like :pm_api_url , pm_user , pm_api_token_secret ... 
 chmod 600 terraform.tfvars
 
 # Deploy cluster
