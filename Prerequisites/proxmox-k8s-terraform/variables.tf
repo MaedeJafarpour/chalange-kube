@@ -158,3 +158,20 @@ variable "workers" {
     ip_start  = 110
   }
 }
+
+
+
+variable "monitoring" {
+  type = object({
+    enabled          = bool
+    storage_retention = string
+    admin_password   = string
+  })
+  description = "Monitoring stack configuration"
+  default = {
+    enabled          = true
+    storage_retention = "30d"
+    admin_password   = "ChangeMe123!"
+  }
+  sensitive = true
+}
