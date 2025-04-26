@@ -1,60 +1,48 @@
-**HA Kubernetes Cluster Project**
+# Enterprise-Grade Kubernetes Deployment Framework
 
+![Kubernetes](https://img.shields.io/badge/kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)
+![Ansible](https://img.shields.io/badge/ansible-%231A1918.svg?style=for-the-badge&logo=ansible&logoColor=white)
+![Terraform](https://img.shields.io/badge/terraform-%235835CC.svg?style=for-the-badge&logo=terraform&logoColor=white)
 
-This project automates the deployment and management of a high-availability Kubernetes cluster using Ansible, Terraform, and Proxmox. It includes configuration for multi-master, multi-worker setups, security configurations, and tools for monitoring, logging, and backup management.
+## 📖 Overview
+A comprehensive infrastructure-as-code solution for deploying production-grade Kubernetes clusters with enterprise security, monitoring, and GitOps capabilities. This framework combines industry-best practices for cluster deployment, hardening, observability, and application management.
 
-**Overview**
+## 🚀 Key Features
+- **Secure Kubernetes Foundations**
+  - CIS-hardened cluster configurations
+  - SSH hardening & firewall policies
+  - RBAC-enforced multi-tenant isolation
+- **Multi-Cloud Ready**
+  - Proxmox Terraform provisioning
+  - Kubespray-based cluster deployment
+  - Cross-cloud compatibility modules
+- **Enterprise Observability**
+  - Prometheus/Grafana/Loki monitoring stack
+  - Custom etcd & API server dashboards
+  - Centralized logging with FluentBit
+- **GitOps Workflows**
+  - ArgoCD application management
+  - Configuration-as-code patterns
+  - Automated backup strategies
+- **Compliance Ready**
+  - Network policy templates
+  - Security context constraints
+  - Audit-ready configurations
 
-This repository contains the scripts and configuration to deploy a high-availability Kubernetes cluster using multiple tools. The project is structured into three main parts:
+## ⚙️ Prerequisites
+- Terraform >= 1.5
+- Ansible >= 2.15
+- kubectl >= 1.28
+- Helm >= 3.12
+- Proxmox VE 7.4+ (or equivalent cloud provider)
+- Python 3.9+ with virtualenv
 
-1. Ansible-based Kubernetes Setup: Handles Kubernetes installation and configuration.
+## 🛠️ Installation & Deployment
 
-2. Security Hardening: Ensures that the cluster is secure with configurations for firewalls, SSH, and kernel settings.
-
-3. Terraform & Proxmox Setup: Deploys the infrastructure for Kubernetes clusters using Proxmox and manages it with Terraform.
-
-This setup is ideal for real-time, production-level Kubernetes environments, and it follows best practices for scalability and security.
-
-
-
-
-**Prerequisites**
-
-
-Tools Required
-
-*Ansible: Used for automating the configuration of your Kubernetes cluster.
-
-*Terraform: Used for provisioning infrastructure (via Proxmox).
-
-*Proxmox: Used for managing virtual machines.
-
-*Kubernetes: Core of the cluster setup.
-
-
-
-**Environment Setup**
-Ensure that the following software is installed before proceeding with the installation:
-
-Ansible (2.x or higher)
-
-Terraform (v0.13 or higher)
-
-Proxmox (configured and running)
-
-Access to a Kubernetes-compatible environme
-
-
-
-
-1. Clone the repository
+### 1. Infrastructure Provisioning
 ```bash
-git clone https://github.com/MaedeJafarpour/chalange-kube
-cd ha-kubernetes-cluster
-
-
-
-
-
+cd Prerequisites/proxmox-k8s-terraform
+terraform init
+terraform apply -var-file="terraform.tfvars"
 
 
