@@ -27,9 +27,9 @@
 
 ## 🧩 Integration Ecosystem
 ```mermaid
-graph LR
-    A[Alloy Agent] --> B{Prometheus}
-    A --> C{Loki}
+graph TD
+    A[Alloy Agent] --> B[Prometheus]
+    A --> C[Loki]
     B --> D[Alertmanager]
     B --> E[Grafana]
     C --> E
