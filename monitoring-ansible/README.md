@@ -25,6 +25,8 @@
   - Service account-based authentication
   - RBAC-enabled access controls
 
+## 🧩 Integration Ecosystem
+```mermaid
 graph LR
     A[Alloy Agent] --> B{Prometheus}
     A --> C{Loki}
@@ -33,7 +35,10 @@ graph LR
     C --> E
     D --> F[PagerDuty]
     D --> G[Slack]
-    E --> H[Enterprise SIEM]
+    D --> H[Telegram]
+    E --> I[Enterprise SIEM]
+    style H fill:#0088cc,color:white
+
 
 
 ## 🏗️ Architecture Overview
