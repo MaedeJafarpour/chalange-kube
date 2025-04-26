@@ -25,6 +25,17 @@
   - Service account-based authentication
   - RBAC-enabled access controls
 
+graph LR
+    A[Alloy Agent] --> B{Prometheus}
+    A --> C{Loki}
+    B --> D[Alertmanager]
+    B --> E[Grafana]
+    C --> E
+    D --> F[PagerDuty]
+    D --> G[Slack]
+    E --> H[Enterprise SIEM]
+
+
 ## 🏗️ Architecture Overview
 ```bash
 Monitoring Stack
@@ -44,15 +55,6 @@ Monitoring Stack
 also VM identification through node fingerprinting with lable nodename(static) and hostname(in ansible host)
 
 
-graph LR
-    A[Alloy Agent] --> B{Prometheus}
-    A --> C{Loki}
-    B --> D[Alertmanager]
-    B --> E[Grafana]
-    C --> E
-    D --> F[PagerDuty]
-    D --> G[Slack]
-    E --> H[Enterprise SIEM]
 
 
 
