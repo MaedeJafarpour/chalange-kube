@@ -37,8 +37,7 @@ graph LR
     D --> G[Slack]
     D --> H[Telegram]
     E --> I[Enterprise SIEM]
-    style H fill:#0088cc,color:white
-
+    style H fill:#0088cc,color:#ffffff
 
 
 ## 🏗️ Architecture Overview
