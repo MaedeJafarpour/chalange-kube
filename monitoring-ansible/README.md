@@ -27,7 +27,7 @@
 
 ## 🧩 Integration Ecosystem
 ```mermaid
-graph TD
+graph LR
     A[Alloy Agent] --> B[Prometheus]
     A --> C[Loki]
     B --> D[Alertmanager]
@@ -37,7 +37,7 @@ graph TD
     D --> G[Slack]
     D --> H[Telegram]
     E --> I[Enterprise SIEM]
-    style H fill:#0088cc,color:#ffffff
+    style H fill:#0088cc,stroke:#ffffff,stroke-width:2px
 
 
 ## 🏗️ Architecture Overview
