@@ -1,63 +1,46 @@
 global:
-  scrape_interval: {{ prometheus_scrape_interval }}
+  scrape_interval: {{ prometheus_scrape_interval | default('15s') }}
   evaluation_interval: 15s
-  scrape_timeout: 10s
+  external_labels:
+    env: "{{ host_env | default('production') }}"  # From inventory
+    cluster: "{{ cluster_name | default('default-cluster') }}"
 
-remote_write:
-  - url: http://localhost:9090/api/v1/write
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:9093']
+
+rule_files:
+  - '/etc/prometheus/alert_rules.yml'
 
 scrape_configs:
-  - job_name: 'node_exporter'
-    static_configs:
-      - targets:
-        {% for host in groups['agent_servers'] %}
-        - '{{ hostvars[host].ansible_host }}:{{ node_exporter_port }}'
-        {% endfor %}
-    relabel_configs:
-      - source_labels: [__address__]
-        target_label: instance
-      - source_labels: [__address__]
-        regex: '(.*):.*'
-        target_label: '__address__'
-        replacement: '${1}:9100'
-      - source_labels: []
-        target_label: env
-        replacement: 'production'
-      - source_labels: []
-        target_label: job_type
-        replacement: 'system'
-
-  - job_name: 'cadvisor'
-    static_configs:
-      - targets:
-        {% for host in groups['agent_servers'] %}
-        {% if hostvars[host].docker_installed is defined and hostvars[host].docker_installed %}
-        - '{{ hostvars[host].ansible_host }}:{{ cadvisor_port }}'
-        {% endif %}
-        {% endfor %}
-    relabel_configs:
-      - source_labels: [__address__]
-        target_label: instance
-      - source_labels: [__address__]
-        regex: '(.*):.*'
-        target_label: '__address__'
-        replacement: '${1}:8080'
-      - source_labels: []
-        target_label: env
-        replacement: 'production'
-      - source_labels: []
-        target_label: job_type
-        replacement: 'docker'
-
+  # Prometheus self-monitoring
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']
-    relabel_configs:
-      - source_labels: [__address__]
-        target_label: instance
-      - source_labels: []
-        target_label: env
-        replacement: 'production'
-      - source_labels: []
-        target_label: job_type
-        replacement: 'monitoring'
+        labels:
+          role: 'monitoring'
+          hostname: "{{ ansible_hostname }}"
+
+  # Dynamic node exporters with hostnamectl names
+  - job_name: 'node-exporters'
+    static_configs:
+      - targets:
+          {% for host in groups['all_nodes'] %}
+          - '{{ hostvars[host].ansible_host }}:{{ node_exporter_port | default(9100) }}'
+          {% endfor %}
+        labels:
+          hostname: "{{ hostvars[host].hostname_clean }}"  # From hostnamectl
+          env: "{{ hostvars[host].host_env }}"  # From inventory
+          ip: "{{ hostvars[host].ansible_host }}"  # Preserve IP
+
+  # cAdvisor (Docker hosts only)
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets:
+          {% for host in groups['docker_nodes'] %}
+          - '{{ hostvars[host].ansible_host }}:{{ cadvisor_port | default(8080) }}'
+          {% endfor %}
+        labels:
+          hostname: "{{ hostvars[host].hostname_clean }}"
+          service: 'containers'
