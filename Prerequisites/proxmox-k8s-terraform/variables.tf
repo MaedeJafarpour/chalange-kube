@@ -17,6 +17,22 @@ variable "pm_user" {
   }
 }
 
+variable "environment" {
+  type        = string
+  description = "Deployment environment (dev/stage/prod)"
+  default     = "dev" # Default to safest option
+
+  validation {
+    condition     = contains(["dev", "stage", "prod"], var.environment)
+    error_message = "Environment must be dev, stage, or prod"
+  }
+}
+
+
+
+
+
+
 variable "pm_api_token_id" {
   type        = string
   sensitive   = true
@@ -176,19 +192,29 @@ variable "workers" {
 
 variable "monitoring" {
   type = object({
-    enabled          = bool
-    storage_retention = string
-    admin_password   = string
-  })
-  description = "Monitoring stack configuration"
-  default = {
-    enabled          = true
-    storage_retention = "30d"
-    admin_password   = "ChangeMe123!"
-  }
-  sensitive = true
-}
+    enabled          = optional(bool, false)
+    storage_retention = optional(string, "7d")
+    admin_password   = optional(string, null)   #the default is false and not do anything if it will true it Validation-Only(not install)
 
+  })
+  description = <<EOT
+  Controls monitoring stack deployment:
+  - enabled: Set true to install Prometheus/Grafana
+  - storage_retention: Metrics retention period (e.g., "7d", "30d")
+  - admin_password: Leave null to generate random password
+  EOT
+  default     = {} # Empty defaults will use optional() values
+  sensitive   = true
+
+  validation {
+    condition     = !try(var.monitoring.enabled, false) || (
+      try(var.monitoring.admin_password, null) == null ||
+      (length(var.monitoring.admin_password) >= 12 &&
+       can(regex("[A-Z]", var.monitoring.admin_password)) &&
+       can(regex("[0-9]", var.monitoring.admin_password)))
+    error_message = "Password must be ≥12 chars with uppercase and numbers"
+  }
+}#it does not have benefit for now if you add to install prometheus/gerafana set this true to check (also install in main file)
 
 
 variable "proxmox_cluster_nodes" {
