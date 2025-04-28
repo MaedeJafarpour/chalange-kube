@@ -131,10 +131,23 @@ variable "masters" {
     disk_size = "50G"
     ip_start  = 100
   }
-  validation {
-    condition     = var.masters.count >= 1 && var.masters.count <= 5
-    error_message = "Master count must be between 1-5 for HA"
-  }
+
+
+validation {
+  condition     = (
+    (var.masters.count == 1 && var.environment == "dev") ||
+    (var.masters.count == 3 || var.masters.count == 5) ||
+    (var.masters.count == 2 && var.ha_config.enabled == false)
+  ) && var.masters.count % 2 == 1
+  error_message = <<EOT
+  Invalid master count configuration:
+  - Production: must be 3 or 5 (odd numbers)
+  - Dev: may be 1 (with HA disabled)
+  - Never use even numbers with HA enabled
+  EOT
+}
+
+
 }
 
 # Worker Node Configuration
