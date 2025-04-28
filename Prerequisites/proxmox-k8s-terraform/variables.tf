@@ -175,3 +175,11 @@ variable "monitoring" {
   }
   sensitive = true
 }
+
+
+
+variable "proxmox_cluster_nodes" {
+  type        = list(string)
+  description = "List of Proxmox nodes in your cluster"
+  default     = ["pve-node1", "pve-node2", "pve-node3"]
+}

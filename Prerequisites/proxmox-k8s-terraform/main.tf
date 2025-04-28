@@ -3,7 +3,7 @@ provider "proxmox" {
   pm_user             = var.pm_user
   pm_api_token_id     = var.pm_api_token_id
   pm_api_token_secret = var.pm_api_token_secret
-  pm_tls_insecure     = true # In prod, use valid CA cert
+  pm_tls_insecure     = true # In prod, use valid CA cert, must be remove in production
   pm_timeout          = 600  # Increased timeout for HA operations
 }
 
@@ -13,7 +13,7 @@ resource "proxmox_vm_qemu" "ha_group" {
   
   hagroup    = var.ha_config.ha_group
   nodes      = [var.proxmox_node]
-  restriction = "nodes=${var.proxmox_node}"
+  nodes = var.proxmox_cluster_nodes
   type       = "vm"
 }
 
