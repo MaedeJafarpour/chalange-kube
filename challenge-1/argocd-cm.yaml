@@ -1,0 +1,14 @@
+# argocd-cm.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+  namespace: argocd
+data:
+  url: https://192.168.1.150
+  oidc.config: |
+    name: GitLab
+    issuer: https://gitlab.com
+    clientID: $GITLAB_APP_ID
+    clientSecret: $GITLAB_APP_SECRET
+    requestedScopes: ["openid", "profile", "email"]

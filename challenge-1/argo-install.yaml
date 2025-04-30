@@ -1,0 +1,34 @@
+# argo-install.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd-install
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/argoproj/argo-helm
+    targetRevision: main
+    chart: argo-cd
+    helm:
+      values: |
+        controller:
+          replicas: 3  # High Availability
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+        server:
+          service:
+            type: LoadBalancer
+          autoscaling:
+            enabled: true
+            minReplicas: 2
+        redis:
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
